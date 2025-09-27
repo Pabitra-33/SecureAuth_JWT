@@ -9,9 +9,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import security_for_login_registration.service.CustomerService;
 
@@ -26,33 +24,41 @@ public class AppSecurityConfig {
 	private JwtFilter jwtFilter;
 
 	@Bean
-	DaoAuthenticationProvider authenticationProvider() {
+	public DaoAuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authprovider = new DaoAuthenticationProvider();
-		authprovider.setPasswordEncoder(passwordEncoder());
+
+		authprovider.setPasswordEncoder(pwdEncoder());
 		authprovider.setUserDetailsService(customerService);
 		return authprovider;
 	}
 
 	@Bean
-	AuthenticationManager authManager(AuthenticationConfiguration configuration) throws Exception {
+	public AuthenticationManager authManager(AuthenticationConfiguration configuration) throws Exception {
 		return configuration.getAuthenticationManager();
 	}
 
-	// THIS ONE IS FOR GIVING A PARTICULAR APIS NO SECURITYB LIKE HOME AND HELP PAGE
-	// CAN ACCESS BY ALL
-	@Bean
-	SecurityFilterChain security(HttpSecurity http, JwtFilter jwtfilter) throws Exception {
+//	@Bean
+//	public SecurityFilterChain security(HttpSecurity http) throws Exception
+//	{
+//		http.authorizeRequests((req)->req.requestMatchers("/register","/login").permitAll().anyRequest().authenticated());
+//	return http.csrf().disable().build();
 
-		http.authorizeHttpRequests(
-				req -> req.requestMatchers("/register", "/login").permitAll().anyRequest().authenticated());
-		http.addFilterBefore(jwtfilter, UsernamePasswordAuthenticationFilter.class);
+	// jwt.............
+	@Bean
+	public SecurityFilterChain security(HttpSecurity http) throws Exception {
+
+		http.authorizeRequests(
+				(req) -> req.requestMatchers("/register", "/login").permitAll().anyRequest().authenticated());
+		http.addFilterBefore(jwtFilter,
+				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 		return http.csrf().disable().build();
 
 	}
 
 	@Bean
-	PasswordEncoder passwordEncoder() // USED FOR ENCRYPTING THE PASSWORD OF USER
+	public BCryptPasswordEncoder pwdEncoder() // this is used to encrypt password given by user
 	{
 		return new BCryptPasswordEncoder();
 	}
+
 }

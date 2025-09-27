@@ -7,8 +7,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import security_for_login_registration.entity.Customer;
@@ -18,30 +17,25 @@ import security_for_login_registration.repository.CustomerRepository;
 public class CustomerService implements UserDetailsService {
 
 	@Autowired
-	private CustomerRepository customerRepo;
+	private BCryptPasswordEncoder pswdEncoder;
 
 	@Autowired
-	private PasswordEncoder passwordEncoder; // fixed (use interface)
+	private CustomerRepository customerRepository;
 
-	// Save new customer with encoded password
-	public boolean saveCustomer(Customer customer) {
-
-		customer.setPswd(passwordEncoder.encode(customer.getPswd())); // encode before saving
-		Customer saved = customerRepo.save(customer);
-		return saved.getCid() != null;
-
-	}
-
-	// Load user for authentication
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Customer customer = customerRepo.findByEmail(username);
+		Customer customer = customerRepository.findByEmail(username);
 
-		if (customer == null) {
-			throw new UsernameNotFoundException("User not found with email: " + username);
-		}
-
-		// right now roles = emptyList(), can add ROLE_USER, ROLE_ADMIN later
 		return new User(customer.getEmail(), customer.getPswd(), Collections.emptyList());
+        //assigning user credentials for user object email,pswd, roles
 	}
+
+	public boolean saveCustomer(Customer customer) {
+		String pswd = pswdEncoder.encode(customer.getPswd());
+		customer.setPswd(pswd);
+		Customer save = customerRepository.save(customer);
+
+		return save.getCid() != null;
+	}
+
 }

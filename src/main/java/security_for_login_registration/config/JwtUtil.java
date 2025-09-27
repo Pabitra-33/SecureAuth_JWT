@@ -15,32 +15,34 @@ public class JwtUtil {
 
 	private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-	private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
+	private final long EXPIRATION_TIME = 1000 * 60 * 60;// 1 hour
 
-	// GENERATE TOKEN
+	// Generate Token
+
 	public String generateToken(String username) {
+
 		return Jwts.builder().setSubject(username).setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)).signWith(SECRET_KEY).compact();
-
 	}
 
-	// EXTRACT USERNAME
-	public String extractUsername(String token) {
+	// Extract User name
+	public String extractUserName(String token) {
+		System.out.println("extracted username from jwt token");
 		return extractClaims(token).getSubject();
 	}
 
-	// validate token
+	// Validate Token
 	public boolean validateToken(String token, String username) {
-		String extractedUser = extractUsername(token);
-		return (username.equals(extractedUser) && !isTokenExpired(token));
+		String extracteduser = extractUserName(token);
+		return (username.equals(extracteduser) && !isTokenExpired(token));
 	}
 
-	private boolean isTokenExpired(String token) {
+	public boolean isTokenExpired(String token) {
 		return extractClaims(token).getExpiration().before(new Date());
 	}
 
 	private Claims extractClaims(String token) {
 		return Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token).getBody();
-
 	}
+
 }
