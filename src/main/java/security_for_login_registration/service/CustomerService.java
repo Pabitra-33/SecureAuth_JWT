@@ -30,6 +30,7 @@ public class CustomerService implements UserDetailsService {
         //assigning user credentials for user object email,pswd, roles
 	}
 
+	//logic to save a customer
 	public boolean saveCustomer(Customer customer) {
 		String pswd = pswdEncoder.encode(customer.getPswd());
 		customer.setPswd(pswd);
