@@ -53,7 +53,7 @@ public class CustomerRestController {
 
 	}
 
-	// SECURED API
+	// SECURED API/End-point we can't access this
 	@GetMapping("/hello")
 	public String hello() {
 		return "HELLO, WELCOME TO Secured Api hello";
