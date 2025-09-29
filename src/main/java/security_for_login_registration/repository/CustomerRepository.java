@@ -8,5 +8,5 @@ import security_for_login_registration.entity.Customer;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer>{
 
-	Customer findByEmail(String email);
+	Customer findByEmail(String email);//to get Customers based on the email
 }
